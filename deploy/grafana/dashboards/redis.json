@@ -1,0 +1,204 @@
+{
+  "uid": "obsly-redis",
+  "title": "Obsly / Redis",
+  "tags": [
+    "obsly",
+    "redis"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Used Memory (bytes)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "redis_used_memory_bytes",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Ops / sec",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "redis_instantaneous_ops_per_sec",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Keyspace Hit Ratio",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "redis_keyspace_hit_ratio",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Connected Clients",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "redis_connected_clients",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Connected Slaves",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "redis_connected_slaves",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Evicted Keys (rate)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(redis_evicted_keys_total[5m])",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    }
+  ]
+}

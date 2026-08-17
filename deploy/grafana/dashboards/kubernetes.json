@@ -1,0 +1,204 @@
+{
+  "uid": "obsly-kubernetes",
+  "title": "Obsly / Kubernetes",
+  "tags": [
+    "obsly",
+    "kubernetes"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Node Ready",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "k8s_node_ready",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Node CPU Allocatable (cores)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "k8s_node_cpu_allocatable_cores",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Node Memory Allocatable (bytes)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "k8s_node_memory_allocatable_bytes",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Pod Restarts (rate 15m)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "increase(k8s_pod_restart_count[15m])",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Pods Pending",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(k8s_pod_pending) by (namespace)",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Deployment Unavailable Replicas",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "k8s_deployment_replicas_unavailable",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    }
+  ]
+}
