@@ -1,0 +1,36 @@
+groups:
+- name: obsly.kubernetes
+  interval: 30s
+  rules:
+  - record: fleet:k8s_node_ready:avg
+    expr: avg(k8s_node_ready) by (fleet)
+  - alert: KubernetesNodeNotReady
+    expr: k8s_node_ready == 0
+    for: 5m
+    labels:
+      severity: critical
+      team: platform
+    annotations:
+      summary: Node {{ $labels.host }} is not Ready
+      description: Node {{ $labels.host }} in fleet {{ $labels.fleet }} has been NotReady
+        for 5 minutes.
+  - alert: KubernetesPodCrashLooping
+    expr: increase(k8s_pod_restart_count[15m]) > 3
+    for: 5m
+    labels:
+      severity: warning
+      team: platform
+    annotations:
+      summary: Pod {{ $labels.pod }} is restarting frequently
+      description: Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} restarted
+        more than 3 times in 15 minutes.
+  - alert: KubernetesDeploymentReplicasUnavailable
+    expr: k8s_deployment_replicas_unavailable > 0
+    for: 10m
+    labels:
+      severity: warning
+      team: platform
+    annotations:
+      summary: Deployment {{ $labels.deployment }} has unavailable replicas
+      description: Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace
+        }} has had unavailable replicas for 10 minutes.

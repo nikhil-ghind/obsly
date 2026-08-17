@@ -1,0 +1,44 @@
+groups:
+- name: obsly.mysql
+  interval: 30s
+  rules:
+  - record: fleet:mysql_innodb_buffer_pool_hit_ratio:avg
+    expr: avg(mysql_innodb_buffer_pool_hit_ratio) by (fleet)
+  - alert: MySQLReplicationLagHigh
+    expr: mysql_replication_lag_seconds > 30
+    for: 5m
+    labels:
+      severity: critical
+      team: platform
+    annotations:
+      summary: MySQL replica {{ $labels.host }} lagging
+      description: Replica {{ $labels.host }} is more than 30s behind its source for
+        5 minutes.
+  - alert: MySQLReplicationBroken
+    expr: mysql_replication_io_running == 0 or mysql_replication_sql_running == 0
+    for: 2m
+    labels:
+      severity: critical
+      team: platform
+    annotations:
+      summary: MySQL replication broken on {{ $labels.host }}
+      description: Replica IO/SQL thread is not running on {{ $labels.host }}.
+  - alert: MySQLTooManyConnections
+    expr: mysql_threads_connected > 150
+    for: 5m
+    labels:
+      severity: warning
+      team: platform
+    annotations:
+      summary: MySQL {{ $labels.host }} connection count high
+      description: MySQL instance {{ $labels.host }} has more than 150 connected threads.
+  - alert: MySQLBufferPoolHitRatioLow
+    expr: mysql_innodb_buffer_pool_hit_ratio < 0.95
+    for: 15m
+    labels:
+      severity: warning
+      team: platform
+    annotations:
+      summary: MySQL {{ $labels.host }} InnoDB buffer pool hit ratio degraded
+      description: Buffer pool hit ratio on {{ $labels.host }} has been below 95%
+        for 15 minutes.
