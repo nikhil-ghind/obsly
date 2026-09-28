@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "obsly"
+version = "0.1.0"
+description = "Fleet observability platform: Kafka-based metric ingestion from Kubernetes/Redis/MySQL with automated Prometheus/Grafana dashboards and alerting."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nikhil Ghind" }]
+
+dependencies = [
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "kafka-python>=2.0.2",
+    "kubernetes>=29.0.0",
+    "redis>=5.0",
+    "PyMySQL>=1.1",
+    "SQLAlchemy>=2.0",
+    "prometheus-client>=0.20.0",
+    "PyYAML>=6.0",
+    "click>=8.1",
+    "python-json-logger>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.14",
+    "black>=24.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+obsly-collect = "obsly.cli.collect:main"
+obsly-consume = "obsly.cli.consume:main"
+obsly-exporter = "obsly.cli.exporter:main"
+obsly-bootstrap = "obsly.kafka.admin:bootstrap_topics"
+obsly-provision = "obsly.cli.provision:main"
+
+[tool.setuptools.packages.find]
+include = ["obsly*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]

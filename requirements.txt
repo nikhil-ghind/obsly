@@ -1,0 +1,11 @@
+pydantic>=2.6
+pydantic-settings>=2.2
+kafka-python>=2.0.2
+kubernetes>=29.0.0
+redis>=5.0
+PyMySQL>=1.1
+SQLAlchemy>=2.0
+prometheus-client>=0.20.0
+PyYAML>=6.0
+click>=8.1
+python-json-logger>=2.0
