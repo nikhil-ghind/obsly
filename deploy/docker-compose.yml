@@ -1,0 +1,186 @@
+version: "3.9"
+
+x-obsly-env: &obsly-env
+  OBSLY_ENVIRONMENT: docker
+  OBSLY_FLEET_NAME: default-fleet
+  OBSLY_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  OBSLY_REDIS_URL: redis://redis:6379/0
+  OBSLY_REDIS_MONITORED_URLS: '["redis://redis:6379/0"]'
+  OBSLY_MYSQL_DSN: mysql+pymysql://obsly:obsly@mysql:3306/obsly
+  OBSLY_MYSQL_MONITORED_DSNS: '["mysql+pymysql://obsly:obsly@mysql:3306/obsly"]'
+  OBSLY_STORAGE_DATABASE_URL: sqlite:////data/obsly.db
+  OBSLY_EXPORTER_HOST: 0.0.0.0
+  OBSLY_EXPORTER_PORT: 9464
+  OBSLY_LOG_JSON_OUTPUT: "true"
+
+services:
+  # --- Streaming backbone -------------------------------------------------
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: obsly-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_CFG_NODE_ID: "0"
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # --- Fleet backends being monitored -------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: obsly-redis
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:8.0
+    container_name: obsly-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: obsly
+      MYSQL_USER: obsly
+      MYSQL_PASSWORD: obsly
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # --- Observability stack -------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: obsly-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: obsly-alertmanager
+    ports:
+      - "9093:9093"
+    environment:
+      SLACK_WEBHOOK_URL: ${OBSLY_ALERT_SLACK_WEBHOOK_URL:-}
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: obsly-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  # --- Obsly application services ------------------------------------------
+  obsly-bootstrap:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-bootstrap
+    command: ["python", "-m", "obsly.kafka.admin"]
+    environment:
+      <<: *obsly-env
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: "no"
+
+  obsly-collector-k8s:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-collector-k8s
+    command: ["python", "-m", "obsly.cli.collect", "--source", "k8s"]
+    environment:
+      <<: *obsly-env
+      OBSLY_K8S_IN_CLUSTER: "false"
+    volumes:
+      - ~/.kube:/root/.kube:ro
+    depends_on:
+      - obsly-bootstrap
+
+  obsly-collector-redis:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-collector-redis
+    command: ["python", "-m", "obsly.cli.collect", "--source", "redis"]
+    environment:
+      <<: *obsly-env
+    depends_on:
+      - obsly-bootstrap
+      - redis
+
+  obsly-collector-mysql:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-collector-mysql
+    command: ["python", "-m", "obsly.cli.collect", "--source", "mysql"]
+    environment:
+      <<: *obsly-env
+    depends_on:
+      - obsly-bootstrap
+      - mysql
+
+  obsly-consumer:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-consumer
+    command: ["python", "-m", "obsly.cli.consume"]
+    environment:
+      <<: *obsly-env
+    volumes:
+      - obsly_data:/data
+    depends_on:
+      - obsly-bootstrap
+      - redis
+
+  obsly-exporter:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: obsly-exporter
+    command: ["python", "-m", "obsly.cli.exporter"]
+    environment:
+      <<: *obsly-env
+    ports:
+      - "9464:9464"
+    volumes:
+      - obsly_data:/data
+    depends_on:
+      - obsly-consumer
+
+volumes:
+  kafka_data:
+  mysql_data:
+  prometheus_data:
+  grafana_data:
+  obsly_data:
