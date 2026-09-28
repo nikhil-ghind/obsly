@@ -1,0 +1,142 @@
+{
+  "uid": "obsly-fleet-overview",
+  "title": "Obsly / Fleet Overview",
+  "tags": [
+    "obsly",
+    "fleet"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Nodes Ready (avg)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "fleet:k8s_node_ready:avg",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Redis Hit Ratio (avg)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "fleet:redis_keyspace_hit_ratio:avg",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "MySQL Buffer Pool Hit Ratio (avg)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "fleet:mysql_innodb_buffer_pool_hit_ratio:avg",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Active Alerts",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "ALERTS{alertstate=\"firing\"}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    }
+  ]
+}

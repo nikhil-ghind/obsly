@@ -1,0 +1,204 @@
+{
+  "uid": "obsly-mysql",
+  "title": "Obsly / MySQL",
+  "tags": [
+    "obsly",
+    "mysql"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Threads Connected",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "mysql_threads_connected",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Slow Queries (rate)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(mysql_slow_queries_total[5m])",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "InnoDB Buffer Pool Utilization",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "mysql_innodb_buffer_pool_utilization",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "InnoDB Buffer Pool Hit Ratio",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "mysql_innodb_buffer_pool_hit_ratio",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Replication Lag (seconds)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "mysql_replication_lag_seconds",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Queries / sec (rate)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "obsly-prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "qps"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "rate(mysql_questions_total[5m])",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "obsly-prometheus"
+          }
+        }
+      ]
+    }
+  ]
+}
