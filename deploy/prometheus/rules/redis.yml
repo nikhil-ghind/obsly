@@ -1,0 +1,35 @@
+groups:
+- name: obsly.redis
+  interval: 30s
+  rules:
+  - record: fleet:redis_keyspace_hit_ratio:avg
+    expr: avg(redis_keyspace_hit_ratio) by (fleet)
+  - alert: RedisMemoryNearMax
+    expr: redis_maxmemory_bytes > 0 and (redis_used_memory_bytes / redis_maxmemory_bytes)
+      > 0.9
+    for: 5m
+    labels:
+      severity: critical
+      team: platform
+    annotations:
+      summary: Redis {{ $labels.host }} memory usage above 90%
+      description: Redis instance {{ $labels.host }} is using over 90% of maxmemory.
+  - alert: RedisLowHitRatio
+    expr: redis_keyspace_hit_ratio < 0.8
+    for: 15m
+    labels:
+      severity: warning
+      team: platform
+    annotations:
+      summary: Redis {{ $labels.host }} keyspace hit ratio degraded
+      description: Redis instance {{ $labels.host }} hit ratio has been below 80%
+        for 15 minutes.
+  - alert: RedisReplicationDown
+    expr: redis_connected_slaves == 0 and redis_master_repl_offset > 0
+    for: 5m
+    labels:
+      severity: critical
+      team: platform
+    annotations:
+      summary: Redis {{ $labels.host }} has no connected replicas
+      description: Redis master {{ $labels.host }} reports zero connected replicas.
